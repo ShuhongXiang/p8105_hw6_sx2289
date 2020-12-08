@@ -133,7 +133,8 @@ weather_df =
   select(name, id, everything())
 ```
 
-Set up bootstrap and show the results of bootstrap:
+#### Set up bootstrap and show the results of bootstrap:
+
 ```{r}
 set.seed(1)
 bootstrap_weather = 
@@ -149,4 +150,16 @@ bootstrap_weather =
 bootstrap_weather %>% head() %>% knitr::kable()
 ```
 
+#### Plot the distribution of r^2: 
 
+```{r}
+bootstrap_weather %>%
+  ggplot(aes(x = r.squared)) +
+  geom_density()+
+  labs(
+    title = "The Distribution of r^2",
+    x = "r^2 value"
+  )
+```
+
+We can see the distribution of R square is basically normal and mean is about 0.91.
