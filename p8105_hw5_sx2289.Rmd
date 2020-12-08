@@ -105,7 +105,6 @@ models_results_df %>%
 ### Problem 2
 
 Load the dataset:
-
 ```{r}
 birthweight <- read_csv("data/birthweight.csv")
 
@@ -119,6 +118,7 @@ birthweight %>%
 
 ### Problem 3
 
+Load the dataset:
 ```{r}
 weather_df = 
   rnoaa::meteo_pull_monitors(
@@ -131,6 +131,22 @@ weather_df =
     tmin = tmin / 10,
     tmax = tmax / 10) %>%
   select(name, id, everything())
+```
+
+Set up bootstrap and show the results of bootstrap:
+```{r}
+set.seed(1)
+bootstrap_weather = 
+ modelr::bootstrap(weather_df, n = 5000, id = "id") %>%
+ mutate(
+  lm_model = map(strap, ~lm(tmax ~ tmin, data = .x) ),
+  lm_model_summary = map(lm_model, broom::tidy),
+  lm_model_glance = map(lm_model, broom::glance)
+  ) %>% 
+  unnest(lm_model_summary,lm_model_glance) %>% 
+  select(id, term, estimate, r.squared)
+
+bootstrap_weather %>% head() %>% knitr::kable()
 ```
 
 
