@@ -147,7 +147,9 @@ bootstrap_weather =
   unnest(lm_model_summary,lm_model_glance) %>% 
   select(id, term, estimate, r.squared)
 
-bootstrap_weather %>% head() %>% knitr::kable()
+bootstrap_weather %>% 
+ head() %>% 
+ knitr::kable()
 ```
 
 #### Plot the distribution of r^2: 
@@ -162,4 +164,22 @@ bootstrap_weather %>%
   )
 ```
 
-We can see the distribution of R square is basically normal and mean is about 0.91.
+#### Calculate the value of log(beta_0 * beta_1) and plot the distribution:
+
+```{r}
+bootstrap_weather %>%
+  select(id, term, estimate) %>%
+  pivot_wider(names_from = term,
+              values_from = estimate) %>%
+  mutate(
+   log_value = log(tmin * `(Intercept)`)
+   ) %>%
+  ggplot(aes(x = log_value)) +
+  geom_density() +
+  labs(
+    title = "Distribution of log(beta_0 * beta_1)",
+    x = "log(beta_0 * beta_1)"
+  )
+```
+
+From the graphs pf distribution above, we can see the distribution of R square is basically normal and mean is about 0.91. Besides, the the plot of log(beta_0 * beta_1) shows that the value of the value of log(beta_0 * beta_1) is also normally distributed around the 2.03.
