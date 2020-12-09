@@ -1,5 +1,5 @@
 ---
-title: "p8105 hw solutions"
+title: "p8105 hw6 solutions"
 author: "Shuhong Xiang"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
 output: github_document
@@ -104,15 +104,42 @@ models_results_df %>%
 
 ### Problem 2
 
-Load the dataset:
+Load and clean the dataset:
 ```{r}
 birthweight <- read_csv("data/birthweight.csv")
 
-birthweight %>%
+birthweight_df = 
+ birthweight%>%
  janitor::clean_names() %>%
- mutate(
-  
- )
+ mutate(babysex = 
+    factor(
+     case_when(
+      babysex == 1 ~ "male",
+      babysex == 2 ~ "female"
+     )),
+   frace = factor(
+     case_when(
+      frace == 1 ~ "White",
+      frace == 2 ~ "Black",
+      frace == 3 ~ "Asian",
+      frace == 4 ~ "Puerto Rican",
+      frace == 8 ~ "Other"
+     )),
+   malform = factor(
+    case_when(
+     malform == 0 ~ "absent",
+     malform == 1 ~ "present"
+    )),
+   mrace = factor(
+    case_when(
+      mrace == 1 ~ "White",
+      mrace == 2 ~ "Black",
+      mrace == 3 ~ "Asian",
+      mrace == 4 ~ "Puerto Rican",
+      mrace == 8 ~ "Other"     
+    )
+   )
+   )
 ```
 
 
