@@ -11,6 +11,7 @@ library(tidyverse)
 library(ggridges)
 library(patchwork)
 library(modelr)
+library(mgcv)
 library(p8105.datasets)
 
 knitr::opts_chunk$set(
@@ -184,6 +185,49 @@ plot_my_model =
 plot_my_model
 ```
 
+Cross validation of Model 1: using length at birth and gestational age as predictors (main effects only) and Model 2: using head circumference, length, sex, and all interactions (including the three-way interaction) between these:
+
+```{r}
+model_1 = lm(bwt ~ blength + gaweeks, data = birthweight_df)
+
+model_2 = lm(bwt ~ bhead * blength * babysex, data = birthweight_df)
+
+my_model = lm(formula = bwt ~ babysex + bhead + blength + mrace + parity, data = birthweight_df)
+
+set.seed(1)
+birthweight_cv =
+  modelr::crossv_mc(birthweight_df, 200, id = "id") %>%
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+    )
+ 
+birthweight_cv = 
+ birthweight_cv %>% 
+  mutate(
+    my_model  = map(train, ~lm(formula = bwt ~ babysex + bhead + blength + mrace + parity, data = birthweight_df)),
+    model_1_cv  = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+    model_2_cv  = map(train, ~gam(bwt ~ bhead * blength * babysex, data = as_tibble(.x)))) %>% 
+  mutate(
+    rmse_my_model  = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
+    rmse_model_1  = map2_dbl(model_1_cv, test, ~rmse(model = .x, data = .y)),
+    rmse_model_2  = map2_dbl(model_2_cv, test, ~rmse(model = .x, data = .y)))
+```
+
+Plot of Results from Cross-Validation:
+
+```{r}
+birthweight_cv %>%
+  mutate(across(starts_with("rmse"), as.numeric)) %>%
+  pivot_longer(
+    starts_with("rmse"),
+    values_to = "rmse",
+    names_to =  "model",
+    names_prefix = "rmse_"
+  ) %>%
+  ggplot(aes(x = model, y = rmse)) +
+  geom_violin()
+```
 
 ### Problem 3
 
