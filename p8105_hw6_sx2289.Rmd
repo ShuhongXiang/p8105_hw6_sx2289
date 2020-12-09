@@ -200,6 +200,16 @@ bootstrap_weather %>%
   )
 ```
 
+```{r}
+bootstrap_weather %>%
+  summarize(
+    Estimate = "r^2",
+    CI_lower = quantile(r.squared, 0.025), 
+    CI_upper = quantile(r.squared, 0.975)
+    ) %>% 
+ knitr::kable(caption = "95% CI of r^2")
+```
+
 #### Calculate the value of log(beta_0 * beta_1) and plot the distribution. Then, 2.5% and 97.5% quantiles to provide a 95% confidence interval:
 
 ```{r}
@@ -217,5 +227,22 @@ bootstrap_weather %>%
     x = "log(beta_0 * beta_1)"
   )
 ```
+
+```{r}
+bootstrap_weather %>%
+  select(id, term, estimate) %>%
+  pivot_wider(names_from = term,
+              values_from = estimate) %>%
+  mutate(
+   log_value = log(tmin * `(Intercept)`)
+   ) %>%
+  summarise(
+    Estimate = "log(beta_0 * beta_1)",
+    CI_lower = quantile(log_value, 0.025), 
+    CI_upper = quantile(log_value, 0.975)
+    ) %>% 
+ knitr::kable(caption = "95% CI of log(beta_0 * beta_1)")
+```
+
 
 From the graphs pf distribution above, we can see the distribution of R square is basically normal and mean is about 0.91. Besides, the the plot of log(beta_0 * beta_1) shows that the value of the value of log(beta_0 * beta_1) is also normally distributed around the 2.03.
