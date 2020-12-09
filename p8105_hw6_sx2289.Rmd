@@ -162,9 +162,27 @@ Thus, build my model based on the five variables:
 
 ```{r}
 my_model = lm(formula = bwt ~ babysex + bhead + blength + mrace + parity, data = birthweight_df)
-my_model
+broom::glance(my_model)
 ```
 
+Plot residuals against fitted values of my model: 
+
+```{r}
+plot_my_model = 
+  birthweight_df %>%  
+  modelr::add_residuals(my_model) %>% 
+  modelr::add_predictions(my_model) %>%
+  ggplot(aes(x = pred, y = resid)) + 
+  geom_point() +
+  geom_smooth(formula = y ~ x, method = "lm") + 
+  labs(
+    title = "Plot of Model Residuals against Fitted Values",
+    x = "Fitted Values",
+    y = "Residuals"
+  )
+
+plot_my_model
+```
 
 
 ### Problem 3
